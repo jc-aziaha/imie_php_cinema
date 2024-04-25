@@ -32,7 +32,27 @@
                             <p><strong>Titre</strong>: <?= $film['name']; ?></p>
                             <p><strong>Acteur(s)</strong>: <?= $film['actors']; ?></p>
                             <hr>
-                            <a title="Les détails du film: <?= $film['name']; ?>" href="" class="text-dark mx-2"><i class="fa-solid fa-eye"></i></a>
+                            <a data-bs-toggle="modal" data-bs-target="#modal<?= $film['id'] ?>" title="Les détails du film: <?= $film['name']; ?>" href="" class="text-dark mx-2"><i class="fa-solid fa-eye"></i></a>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="modal<?= $film['id'] ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel"><?= $film['name'] ?></h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    ...
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary">Save changes</button>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+
                             <a title="Modifier le film: <?= $film['name']; ?>" href="edit.php?film_id=<?= $film['id']; ?>" class="text-secondary mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
                             <a href="delete.php?film_id=<?= $film['id']; ?>" class="text-danger mx-2"><i class="fa-regular fa-trash-can"></i></a>
                         </div>

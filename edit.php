@@ -7,7 +7,7 @@ session_start();
         if ( ! isset($_GET['film_id']) || empty($_GET['film_id']) ) 
         {
             // Effectuer une redirection vers la page d'accueil
-            return header("Locxation: index.php");
+            return header("Location: index.php");
         }
 
         // Dans le cas contraire,
