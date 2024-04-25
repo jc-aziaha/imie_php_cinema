@@ -3,8 +3,28 @@ session_start();
 
     // Le serveur
 
-        // var_dump($_SERVER); 
-        // die();
+        // Si l'identifiant du film n'existe pas ou qu'il est vide
+        if ( ! isset($_GET['film_id']) || empty($_GET['film_id']) ) 
+        {
+            // Effectuer une redirection vers la page d'accueil
+            return header("Locxation: index.php");
+        }
+
+        // Dans le cas contraire,
+        // Récupérons l'identifiant du film
+        $filmId = (int) htmlspecialchars($_GET['film_id']);
+
+        // Etablir une connexion avec la base de données
+        require __DIR__ . "/db/connexion.php";
+
+        // S'assurer que l'identifiant correspond à une film de la base de données
+        $req = $db->prepare("SELECT * FROM film WHERE id=:id");
+        $req->bindValue(":id", $filmId);
+        $req->execute();
+
+        // Récupérer le film correspondant
+        $film = $req->fetch();
+        $req->closeCursor();
 
         // 1- Si la méthode d'envoi des données vers le serveur est POST
         if ( $_SERVER['REQUEST_METHOD'] === "POST" ) 
@@ -132,12 +152,13 @@ session_start();
             require __DIR__ . "/db/connexion.php";
     
             // 5- Effectuer la requête d'insertion du nouveau film en base de données
-            $req = $db->prepare("INSERT INTO film (name, actors, review, comment, created_at, updated_at) VALUES (:name, :actors, :review, :comment, now(), now() ) ");
+            $req = $db->prepare("UPDATE film SET name=:name, actors=:actors, review=:review, comment=:comment, updated_at=now() WHERE id=:id ");
 
-            $req->bindValue(":name", $postClean['name']);
-            $req->bindValue(":actors", $postClean['actors']);
-            $req->bindValue(":review", $reviewRounded ? $reviewRounded : '');
+            $req->bindValue(":name",    $postClean['name']);
+            $req->bindValue(":actors",  $postClean['actors']);
+            $req->bindValue(":review",  $reviewRounded ? $reviewRounded : '');
             $req->bindValue(":comment", $postClean['comment']);
+            $req->bindValue(":id",      $film['id']);
 
             $req->execute();
 
@@ -160,7 +181,7 @@ session_start();
     
     <!-- Le contenu spécifique à cette page -->
     <main class="container-fluid">
-        <h1 class="text-center my-3 display-5">Nouveau film</h1>
+        <h1 class="text-center my-3 display-5">Modifier film</h1>
 
         
         <div class="row my-4">
@@ -180,19 +201,19 @@ session_start();
                 <form method="post">
                     <div class="mb-3">
                         <label title="Le nom du film est obligatoire." for="name">Nom du film <span class="text-danger">*</span>:</label>
-                        <input type="text" name="name" class="form-control" id="name" value="<?= (isset($_SESSION['old']['name']) && !empty($_SESSION['old']['name'])) ? $_SESSION['old']['name'] : ""; unset($_SESSION['old']['name']); ?>">
+                        <input type="text" name="name" class="form-control" id="name" value="<?= isset($_SESSION['old']['name']) ? $_SESSION['old']['name'] : $film['name']; unset($_SESSION['old']['name']); ?>">
                     </div>
                     <div class="mb-3">
                         <label title="Le nom du/des acteurs est obligatoire." for="actors">Nom du/des acteur(s) <span class="text-danger">*</span> :</label>
-                        <input type="text" name="actors" class="form-control" id="actors" value="<?= (isset($_SESSION['old']['actors']) && !empty($_SESSION['old']['actors'])) ? $_SESSION['old']['actors'] : ""; unset($_SESSION['old']['actors']); ?>">
+                        <input type="text" name="actors" class="form-control" id="actors" value="<?= isset($_SESSION['old']['actors']) ? $_SESSION['old']['actors'] : $film['actors']; unset($_SESSION['old']['actors']); ?>">
                     </div>
                     <div class="mb-3">
                         <label title="La note n'est pas obligatoire." for="review">La note / 5 :</label>
-                        <input type="number" step="0.1" name="review" class="form-control" id="review" value="<?= (isset($_SESSION['old']['review']) && !empty($_SESSION['old']['review'])) ? $_SESSION['old']['review'] : ""; unset($_SESSION['old']['review']); ?>">
+                        <input type="number" step="0.1" name="review" class="form-control" id="review" value="<?= isset($_SESSION['old']['review']) ? $_SESSION['old']['review'] : $film['review']; unset($_SESSION['old']['review']); ?>">
                     </div>
                     <div class="mb-3">
                         <label title="Le commentaire n'est pas obligatoire." for="comment">Laissez un commentaire :</label>
-                        <textarea name="comment" id="comment" class="form-control" rows="4"><?= (isset($_SESSION['old']['comment']) && !empty($_SESSION['old']['comment'])) ? $_SESSION['old']['comment'] : ""; unset($_SESSION['old']['comment']); ?></textarea>
+                        <textarea name="comment" id="comment" class="form-control" rows="4"><?= isset($_SESSION['old']['comment']) ? $_SESSION['old']['comment'] : $film['comment']; unset($_SESSION['old']['comment']); ?></textarea>
                     </div>
                     <input type="hidden" name="_csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
                     <div class="mb-3">
